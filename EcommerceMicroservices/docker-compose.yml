@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  mysql-user:
+    image: mysql:8
+    container_name: mysql-docker-user
+    environment:
+      MYSQL_ROOT_PASSWORD: Ineedsome123
+      MYSQL_DATABASE: user
+    ports:
+      - "3307:3306"
+    networks:
+      - spring-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pIneedsome123"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mysql-product:
+    image: mysql:8
+    container_name: mysql-docker-product
+    environment:
+      MYSQL_ROOT_PASSWORD: Ineedsome123
+      MYSQL_DATABASE: product
+    ports:
+      - "3308:3306"
+    networks:
+      - spring-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pIneedsome123"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mysql-cart:
+    image: mysql:8
+    container_name: mysql-docker-cart
+    environment:
+      MYSQL_ROOT_PASSWORD: Ineedsome123
+      MYSQL_DATABASE: cart
+    ports:
+      - "3309:3306"
+    networks:
+      - spring-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pIneedsome123"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  service-user:
+    build: ./User
+    container_name: service-user
+    depends_on:
+      mysql-user:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - spring-net
+
+  service-product:
+    build: ./Product
+    container_name: service-product
+    depends_on:
+      mysql-product:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    networks:
+      - spring-net
+
+  service-cart:
+    build: ./cart
+    container_name: service-cart
+    depends_on:
+      mysql-cart:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    networks:
+      - spring-net
+
+networks:
+  spring-net:
+    driver: bridge
